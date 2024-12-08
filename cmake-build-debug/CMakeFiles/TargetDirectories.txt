@@ -1,0 +1,3 @@
+/home/evgeny/CLionProjects/algosi_trees_2/cmake-build-debug/CMakeFiles/algosi_trees_2.dir
+/home/evgeny/CLionProjects/algosi_trees_2/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/evgeny/CLionProjects/algosi_trees_2/cmake-build-debug/CMakeFiles/rebuild_cache.dir

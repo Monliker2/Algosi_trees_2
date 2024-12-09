@@ -154,7 +154,14 @@ private:
         return getIndex(p);
     }
 
-
+    int ROOT() const{
+        for (int i = 0; i < nodes.size(); ++i) {
+            if (nodes[i].parent == -1) {
+                return i;
+            }
+        }
+        return -1;
+    }
 
     void Print(int nodeIndex, int level = 0, bool isRight = false) {
         if (nodeIndex != -1) {
@@ -208,10 +215,23 @@ private:
         // Перемещаемся к самому левому узлу
         void pushLeft(int index) {
             while (index != -1) {
+
                 traversalStack.push(index);
                 index = nodes[index].left_son;
+                //cout<<traversalStack.top()<<" ";
+
             }
+            //cout<< endl;
             //cout<<traversalStack.top()<<endl;
+        }
+
+        int ROOT1() const {
+            for (int i = 0; i < nodes.size(); ++i) {
+                if (nodes[i].parent == -1) {
+                    return i;
+                }
+            }
+            return -1;
         }
 
     public:
@@ -230,6 +250,7 @@ private:
         const int operator*() const {
             return nodes[current].key;
         }
+
 
         const Node* operator->() const {
             return &nodes[current];
@@ -263,27 +284,24 @@ private:
             }
             return *this;
         }
-    };
 
-    // Итератор начала (первый узел в симметричном порядке)
+
+
+
+    };
     iterator begin() const {
-        return iterator(nodes, nodes.empty() ? -1 : 0);
+        return iterator(nodes, ROOT());
     }
 
-    // Итератор конца (завершение обхода)
     iterator end() const {
         return iterator(nodes, -1);
     }
-
-    // Перегрузка оператора -> для доступа к текущему узлу
-
-    // Остальной функционал дерева (вставка, удаление и т.д.)
 };
 
 
 
 int main() {
-    srand(20 );
+    srand(25 );
     Tree t;
     int root = -1;
 
@@ -302,7 +320,7 @@ int main() {
     t.Print(root);
 
     t.printNode(root);
-
+    cout<< t.begin()->name<<endl<<endl;
     for (Tree::iterator it = t.begin(); it != t.end(); ++it) {
             if (it->mark == 2) continue;
             std::cout << *it << " (" << it->name << ")\n";

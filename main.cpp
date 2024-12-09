@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
-#include <cstdlib> // Для rand()
+#include <cstdlib>
+#include <stack>
 
 using namespace std;
 
@@ -27,8 +28,14 @@ struct Node {
 class Tree {
 private:
     //vector<Node> nodes;
+    int getRightSon(int p) {
+        if (p < 0 || p >= nodes.size()) return -1;
+        if (nodes[p].left_son == -1) return -1;
+        if (nodes[nodes[p].left_son].right_sibling == -1) return -1;
+        return nodes[nodes[p].left_son].right_sibling;
+    }
 
-public:
+
     vector<Node> nodes;
     int getsize(int p) {
         if (p < 0 || p >= nodes.size()) return 0;
@@ -113,6 +120,7 @@ public:
         }
     }
 
+    public:
     int insert(int p, int key, char name, int mark = 0) {
         if (p == -1) {
             nodes.push_back(Node(key, name, mark));
@@ -146,12 +154,7 @@ public:
         return getIndex(p);
     }
 
-    int getRightSon(int p) {
-        if (p < 0 || p >= nodes.size()) return -1;
-        if (nodes[p].left_son == -1) return -1;
-        if (nodes[nodes[p].left_son].right_sibling == -1) return -1;
-        return nodes[nodes[p].left_son].right_sibling;
-    }
+
 
     void Print(int nodeIndex, int level = 0, bool isRight = false) {
         if (nodeIndex != -1) {
@@ -195,6 +198,86 @@ public:
         }
     }
 
+
+    class iterator {
+    private:
+        const vector<Node>& nodes; // Ссылка на дерево
+        int current;              // Текущий индекс узла
+        stack<int> traversalStack; // Стек для обхода
+
+        // Перемещаемся к самому левому узлу
+        void pushLeft(int index) {
+            while (index != -1) {
+                traversalStack.push(index);
+                index = nodes[index].left_son;
+            }
+            //cout<<traversalStack.top()<<endl;
+        }
+
+    public:
+        // Конструктор итератора
+        iterator(const vector<Node>& nodes, int start)
+            : nodes(nodes), current(-1) {
+            if (start != -1) {
+                pushLeft(start); // Добавляем все левые узлы
+                if (!traversalStack.empty()) {
+                    current = traversalStack.top();
+                }
+            }
+        }
+
+        // Разыменование: возвращает текущий узел
+        const int operator*() const {
+            return nodes[current].key;
+        }
+
+        const Node* operator->() const {
+            return &nodes[current];
+        }
+
+        // Проверка на неравенство (используется для завершения итерации)
+        bool operator!=(const iterator& other) const {
+            return current != other.current;
+        }
+
+        // Инкремент: перемещаемся к следующему узлу в симметричном порядке
+        iterator& operator++() {
+            if (!traversalStack.empty()) {
+                current = traversalStack.top();
+                traversalStack.pop();
+
+                // Переход к правому сыну
+                //getRightSon(int p)
+                //return nodes[nodes[p].left_son].right_sibling;
+                if (nodes[current].left_son != -1) {
+                    if (nodes[nodes[current].left_son].right_sibling != -1) {
+                        pushLeft(nodes[nodes[current].left_son].right_sibling);
+                    }
+                }
+
+                if (!traversalStack.empty()) {
+                    current = traversalStack.top();
+                } else {
+                    current = -1; // Обход завершён
+                }
+            }
+            return *this;
+        }
+    };
+
+    // Итератор начала (первый узел в симметричном порядке)
+    iterator begin() const {
+        return iterator(nodes, nodes.empty() ? -1 : 0);
+    }
+
+    // Итератор конца (завершение обхода)
+    iterator end() const {
+        return iterator(nodes, -1);
+    }
+
+    // Перегрузка оператора -> для доступа к текущему узлу
+
+    // Остальной функционал дерева (вставка, удаление и т.д.)
 };
 
 
@@ -220,5 +303,9 @@ int main() {
 
     t.printNode(root);
 
+    for (Tree::iterator it = t.begin(); it != t.end(); ++it) {
+            if (it->mark == 2) continue;
+            std::cout << *it << " (" << it->name << ")\n";
+    }
     return 0;
 }

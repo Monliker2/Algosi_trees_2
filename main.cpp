@@ -35,6 +35,15 @@ public:
         return nodes[p].size;
     }
 
+    int getIndex(int p) {
+        for (int i = 0; i < nodes.size(); i++) {
+            if (&nodes[i] == &nodes[p]) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     void fixsize(int p) {
         int size = 1;
         int leftSon = nodes[p].left_son;
@@ -115,24 +124,39 @@ public:
             return insertroot(p, key, name, mark);
         }
 
-        if (nodes[p].key > key) {
+        if (nodes[p].key > key) { // вставка в левое поддерево
+            if (nodes[p].mark == 2) {
+                nodes[p] = Node(key, name, mark);
+            }
             int new_node = insert(nodes[p].left_son, key, name, mark);
             nodes[p].left_son = new_node;
             nodes[new_node].parent = p;
-        } else {
-            int new_node = insert(nodes[p].right_sibling, key, name, mark);
-            nodes[p].right_sibling = new_node;
+        } else {  // вставка в правое поддерево
+            if (nodes[p].left_son == -1) {
+                int new_node = insert(nodes[p].left_son, -1, '*', 2);
+                nodes[p].left_son = new_node;
+                nodes[new_node].parent = p;
+            }
+            int new_node = insert(nodes[nodes[p].left_son].right_sibling, key, name, mark);
+            nodes[nodes[p].left_son].right_sibling = new_node;
             nodes[new_node].parent = p;
         }
 
         fixsize(p);
-        return p;
+        return getIndex(p);
+    }
+
+    int getRightSon(int p) {
+        if (p < 0 || p >= nodes.size()) return -1;
+        if (nodes[p].left_son == -1) return -1;
+        if (nodes[nodes[p].left_son].right_sibling == -1) return -1;
+        return nodes[nodes[p].left_son].right_sibling;
     }
 
     void Print(int nodeIndex, int level = 0, bool isRight = false) {
         if (nodeIndex != -1) {
             // Сначала выводим правого брата
-            Print(nodes[nodeIndex].right_sibling, level + 1, true);
+            Print(getRightSon(nodeIndex), level + 1, true);
 
             // Отступы для уровня
             for (int i = 1; i <= level; i++) {
@@ -146,18 +170,19 @@ public:
                 cout << "└─ "; // Для остальных узлов
             }
 
-            cout << nodes[nodeIndex].key << endl;
+            cout << nodes[nodeIndex].key << "(" << nodes[nodeIndex].name << ")";
+            cout << endl;
 
             // Выводим левого сына
             Print(nodes[nodeIndex].left_son, level + 1, false);
         }
     }
 
-
     void printNode(int nodeIndex) {
         if (nodeIndex != -1) {
             const Node& node = nodes[nodeIndex];
-            cout << "Key: " << node.key
+            cout << "Index: " << nodeIndex
+                 << ", Key: " << node.key
                  << ", Name: " << node.name
                  << ", Left Son: " << node.left_son
                  << ", Right Sibling: " << node.right_sibling
@@ -175,20 +200,20 @@ public:
 
 
 int main() {
-    srand(10);
+    srand(20 );
     Tree t;
     int root = -1;
 
     int numNodes = 15;
     vector<int> valuesA;
     vector<int> valuesB;
-    for (int i = 0; i < numNodes; ++i) {
+    for (int i = 5; i < numNodes; ++i) {
         valuesA.push_back(i);
         valuesB.push_back(i);
     }
 
     for (int val : valuesA) {
-        root = t.insert(root, val, 'A');
+        root = t.insert(root, val,  char('A' + val));
     }
 
     t.Print(root);

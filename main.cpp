@@ -42,9 +42,9 @@ private:
         return nodes[p].size;
     }
 
-    int getIndex(int p) {
+    int getIndex(Node* p) {
         for (int i = 0; i < nodes.size(); i++) {
-            if (&nodes[i] == &nodes[p]) {
+            if (&nodes[i] == p) {
                 return i;
             }
         }
@@ -67,57 +67,52 @@ private:
         nodes[p].size = size;
     }
 
-    int rotateright(int p) {
-        int q = nodes[p].left_son;
-        if (q == -1) return p;
 
-        nodes[p].left_son = nodes[q].right_sibling;
-        if (nodes[q].right_sibling != -1) {
-            nodes[nodes[q].right_sibling].parent = p;
-        }
-        nodes[q].right_sibling = p;
-        nodes[q].parent = nodes[p].parent;
-        nodes[p].parent = q;
+    Node* rotateRight(Node* p) {
+        if (p->left_son == -1) return p;
+        Node* q = &nodes[p->left_son];
 
-        fixsize(p);
-        fixsize(q);
+        if(!q) return p;
+        p->left_son = nodes[q->left_son].right_sibling;
+        nodes[q->left_son].right_sibling = getIndex(p);
+
+        q->size = p->size;
+        fixsize(getIndex(p));
         return q;
     }
 
-    int rotateleft(int p) {
-        int q = nodes[p].right_sibling;
-        if (q == -1) return p;
+    Node* rotateLeft(Node* q) {
+        if (nodes[q->left_son].right_sibling == -1) return q;
+        Node* p = &nodes[nodes[q->left_son].right_sibling];
 
-        nodes[p].right_sibling = nodes[q].left_son;
-        if (nodes[q].left_son != -1) {
-            nodes[nodes[q].left_son].parent = p;
-        }
-        nodes[q].left_son = p;
-        nodes[q].parent = nodes[p].parent;
-        nodes[p].parent = q;
+        if(!p) return q;
+        nodes[q->left_son].right_sibling = p->left_son;
+        p->left_son = getIndex(q);
 
-        fixsize(p);
-        fixsize(q);
+        p->size = q->size;
+        fixsize(getIndex(p));
         return q;
+
     }
 
-    int insertroot(int p, int key, char name, int mark = 0) {
-        if (p == -1) {
+    int insertroot(Node* p, int key, char name, int mark = 0) {
+        if (!p) {
             nodes.push_back(Node(key, name, mark));
             return nodes.size() - 1;
         }
-
-        if (key < nodes[p].key) {
-            int new_node = insertroot(nodes[p].left_son, key, name, mark);
-            nodes[p].left_son = new_node;
-            nodes[new_node].parent = p;
-            return rotateright(p);
+        if(key < p->key) {
+            p->left_son = insertroot(&nodes[p->left_son], key, name, mark);
+            return getIndex(rotateRight(p));
         } else {
-            int new_node = insertroot(nodes[p].right_sibling, key, name, mark);
-            nodes[p].right_sibling = new_node;
-            nodes[new_node].parent = p;
-            return rotateleft(p);
+            if (p->left_son == -1) {
+                int new_node = insert(-1, -1, '*', 2);
+                p->left_son = new_node;
+                nodes[new_node].parent = getIndex(p);
+            }
+            nodes[p->left_son].right_sibling = insertroot(&nodes[nodes[p->left_son].right_sibling], key, name, mark);
+            return getIndex(rotateLeft(p));
         }
+
     }
 
     public:
@@ -129,7 +124,7 @@ private:
 
         // Randomized insertion
         if (rand() % (getsize(p) + 1) == 0) {
-            return insertroot(p, key, name, mark);
+            return insertroot(&nodes[p], key, name, mark);
         }
 
         if (nodes[p].key > key) { // вставка в левое поддерево
@@ -151,7 +146,7 @@ private:
         }
 
         fixsize(p);
-        return getIndex(p);
+        return p;
     }
 
     int ROOT() const{
@@ -308,14 +303,18 @@ int main() {
     int numNodes = 15;
     vector<int> valuesA;
     vector<int> valuesB;
+
+    valuesA.push_back(16);
     for (int i = 5; i < numNodes; ++i) {
         valuesA.push_back(i);
         valuesB.push_back(i);
     }
 
     for (int val : valuesA) {
+        cout<< val<<" ";
         root = t.insert(root, val,  char('A' + val));
     }
+    cout<<endl;
 
     t.Print(root);
 

@@ -123,6 +123,7 @@ private:
 
 
 
+
     int rotateLeft(int q) {
         cout<<" LL ";
         if (nodes[q].left_son == -1 || nodes[nodes[q].left_son].right_sibling == -1) return q;
@@ -194,20 +195,22 @@ private:
             return nodes.size() - 1;
         }
 
-        if (nodes[p].key > key) {
-            if (nodes[p].mark == 2) {
-                cout<< "12345";
-                nodes[p] = Node(key, name, mark);
+        if (nodes[p].mark == 2) {
+            cout<<"!!";
+            nodes[p].name = name;
+            nodes[p].mark = 0;
+            nodes[p].key = key;
+            return p;
+        }
 
-                nodes[p].key = key;
-                nodes[p].mark = 0;
-            }else {
-                int new_node = insertroot(nodes[p].left_son, key, name, mark);
-                nodes[p].left_son = new_node;
-                nodes[new_node].parent = p;
-            }
+        if (nodes[p].key > key) { // вставка в левое поддерево
+            int new_node = insertroot(nodes[p].left_son, key, name, mark);
+            nodes[p].left_son = new_node;
+            nodes[new_node].parent = p;
             return rotateRight(p);
-        } else {
+        }
+        else { // вставка в правое поддерево
+            cout<<"|*"<<nodes[p].key<<":"<<key<<":"<<p<<"*|";
             if (nodes[p].left_son == -1) {
                 int new_node = insert(nodes[p].left_son, -1, '*'+nodes.size(), 2);
                 nodes[p].left_son = new_node;
@@ -236,19 +239,19 @@ private:
             return insertroot(p, key, name, mark);
         }
 
-        if (nodes[p].key > key) { // вставка в левое поддерево
-            if (nodes[p].mark == 2) {
-                cout<< "12345";
-                nodes[p] = Node(key, name, mark);
+        if (nodes[p].mark == 2) {
+            cout<<"!!";
+            nodes[p].name = name;
+            nodes[p].mark = 0;
+            nodes[p].key = key;
+            return p;
+        }
 
-                nodes[p].key = key;
-                nodes[p].mark = 0;
-            }
-            else {
-                int new_node = insert(nodes[p].left_son, key, name, mark);
-                nodes[p].left_son = new_node;
-                nodes[new_node].parent = p;
-            }
+        if (nodes[p].key > key) { // вставка в левое поддерево
+            int new_node = insert(nodes[p].left_son, key, name, mark);
+            nodes[p].left_son = new_node;
+            nodes[new_node].parent = p;
+
         } else {  // вставка в правое поддерево
             if (nodes[p].left_son == -1) {
                 int new_node = insert(nodes[p].left_son, -1, '*'+nodes.size(), 2);
@@ -329,6 +332,14 @@ private:
                  << ", Size: " << node.size
                  << endl;
         }
+    }
+
+    void INORDER(int p, vector<int>& result) {
+        if (p == -1 || nodes[p].mark != 0) return;
+        INORDER(nodes[p].left_son, result);
+        result.push_back(nodes[p].key);
+        if (nodes[p].left_son != -1)
+            INORDER(nodes[nodes[p].left_son].right_sibling, result);
     }
 
     void INORDER_Print(int p) {
@@ -429,7 +440,7 @@ private:
 
 
 int main() {
-    srand(20);
+    srand(20);;
     Tree t;
     int root = -1;
 
@@ -437,9 +448,9 @@ int main() {
     vector<int> valuesB;
 
     //valuesA.push_back(16);
-    for (int i = 8 ; i > 0; --i) {
-        valuesA.push_back(i);
-        //valuesA.push_back(rand() % 10000);
+    for (int i = 16; i > 0; --i) {
+        //  valuesA.push_back(i);
+        valuesA.push_back(rand() % 100);
     }
 
     /*for (int i = 15; i > 5; --i) {
@@ -449,7 +460,7 @@ int main() {
     for(int val : valuesA) {
         cout<< val<<" ";
     }
-
+    cout<<endl;
 
     for (int val : valuesA) {
         cout<< val<<" ";
@@ -469,6 +480,8 @@ int main() {
             std::cout << *it << " (" << it->name << ")\n";
             p++;
     }*/
-    cout<<p<<" "<<valuesA.size()<<endl;
+    t.INORDER(root, valuesB);
+
+    cout<<valuesB.size()<<" "<<valuesA.size()<<endl;
     return 0;
 }

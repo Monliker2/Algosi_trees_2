@@ -83,10 +83,6 @@ private:
 
         //if (nodes[nodes[p].left_son].right_sibling != -1 && nodes[p].left_son != -1) c = nodes[nodes[p].left_son].right_sibling;
 
-        if (b != -1) {
-            nodes[b].right_sibling = c;
-            nodes[b].parent = p;
-        }
 
         if (a != -1)
             nodes[a].right_sibling = p; // Правый сын q
@@ -100,6 +96,16 @@ private:
         }
 
 
+        if(c != -1 && b == -1) {
+            nodes[p].left_son = -1;
+            int new_node = insert(nodes[p].left_son, -1, '*'+nodes.size()+nodes.size(), 2);
+            //nodes[p].left_son = new_node;
+            b = new_node;
+            //nodes[b].parent = p;
+
+            nodes[b].right_sibling = c;
+            nodes[b].parent = p;
+        }
 
         nodes[p].left_son = b;
 
@@ -253,6 +259,7 @@ private:
             nodes[new_node].parent = p;
 
         } else {  // вставка в правое поддерево
+
             if (nodes[p].left_son == -1) {
                 int new_node = insert(nodes[p].left_son, -1, '*'+nodes.size(), 2);
                 nodes[p].left_son = new_node;
@@ -440,7 +447,7 @@ private:
 
 
 int main() {
-    srand(20);;
+    srand(27);;
     Tree t;
     int root = -1;
 
@@ -448,7 +455,7 @@ int main() {
     vector<int> valuesB;
 
     //valuesA.push_back(16);
-    for (int i = 16; i > 0; --i) {
+    for (int i = 7; i > 0; --i) {
         //  valuesA.push_back(i);
         valuesA.push_back(rand() % 100);
     }
@@ -483,5 +490,6 @@ int main() {
     t.INORDER(root, valuesB);
 
     cout<<valuesB.size()<<" "<<valuesA.size()<<endl;
+    //t.printTable();
     return 0;
 }

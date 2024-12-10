@@ -160,16 +160,17 @@ private:
         nodes[q].right_sibling = c;
 
         nodes[p].parent = nodes[q].parent;
-        nodes[q].parent = p;
+        //nodes[q].parent = p;
 
-        if(nodes[q].parent != -1) {
+        if(nodes[p].parent != -1) {
             if(nodes[nodes[p].parent].left_son == q) {
                 nodes[nodes[p].parent].left_son = p;
             }else {
                nodes[ nodes[nodes[p].parent].left_son].right_sibling = p;
             }
-
         }
+
+        nodes[q].parent = p;
         fixsize(p);
         fixsize(q);
         return p;
@@ -409,29 +410,35 @@ int main() {
     vector<int> valuesB;
 
     //valuesA.push_back(16);
-    for (int i = 5; i < 30; ++i) {
-        valuesA.push_back(rand() % 100);
-        valuesB.push_back(i);
+    for (int i = 0 ; i < 40; ++i) {
+        //valuesA.push_back(i);
+        valuesA.push_back(rand() % 10000);
     }
 
     /*for (int i = 15; i > 5; --i) {
         valuesA.push_back(i);
         valuesB.push_back(i);
     }*/
+    for(int val : valuesA) {
+        cout<< val<<" ";
+    }
+
 
     for (int val : valuesA) {
         cout<< val<<" ";
-        root = t.insert(root, val,  char('A' + val));
+        root = t.insert(root, val, 'A');
     }
     cout<<endl;
 
     t.Print(root);
-
+    int p = 0;
     t.printNode(root);
     cout<< t.begin()->name<<endl<<endl;
     for (Tree::iterator it = t.begin(); it != t.end(); ++it) {
             if (it->mark == 2) continue;
             std::cout << *it << " (" << it->name << ")\n";
+            p++;
     }
+    cout<<p<<" "<<valuesA.size()<<endl;
     return 0;
 }

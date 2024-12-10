@@ -38,7 +38,7 @@ private:
 
     vector<Node> nodes;
     int getsize(int p) {
-        if (nodes[p].mark==2 || p == -1) return 0;
+        if (nodes[p].mark == 2 || p == -1) return 0;
         return nodes[p].size;
     }
 
@@ -102,15 +102,18 @@ private:
         nodes[p].left_son = b;
 
         nodes[q].parent = nodes[p].parent;
+        nodes[q].right_sibling = nodes[p].right_sibling;
+        nodes[p].right_sibling = -1;
         nodes[p].parent = q;
 
-        if (nodes[nodes[q].parent].left_son == p) {
-            nodes[nodes[q].parent].left_son = q;
+        if(nodes[q].parent != -1) {
+            if (nodes[nodes[q].parent].left_son == p) {
+                nodes[nodes[q].parent].left_son = q;
+            }
+            else {
+                nodes[nodes[nodes[q].parent].left_son].right_sibling = q;
+            }
         }
-        else {
-            nodes[nodes[q].parent].left_son = p;
-        }
-
         fixsize(p);
         fixsize(q);
         return q;
@@ -120,21 +123,54 @@ private:
 
     int rotateLeft(int q) {
         cout<<" LL ";
+        if (nodes[q].left_son == -1 || nodes[nodes[q].left_son].right_sibling == -1) return q;
 
-        if (nodes[q].left_son == -1) return q;
         int p = nodes[nodes[q].left_son].right_sibling;
+        int a = -1;
+        int b = -1;
+        int c = -1;
 
-        if (p == -1) return q;
+        if (nodes[q].left_son != -1) a = nodes[q].left_son;
+        if (nodes[p].left_son != -1) b = nodes[p].left_son;
+        if (nodes[nodes[p].left_son].right_sibling != -1 && nodes[p].left_son != -1) c = nodes[nodes[p].left_son].right_sibling;
 
-        nodes[nodes[q].left_son].right_sibling = nodes[p].left_son;
-        nodes[p].left_son = nodes[q].left_son;
-        nodes[q].left_son = nodes[p].right_sibling;
-        nodes[p].right_sibling = q;
+        if (a != -1) {
+            nodes[a].right_sibling = b;
+        }
+
+        if(b != -1) {
+            nodes[b].right_sibling = -1;
+            nodes[b].parent = q;
+        }
+
+        if (a != -1)
+            nodes[a].right_sibling = b;
+        else if (b != -1) {
+            int new_node = insert(nodes[q].left_son, -1, '*', 2);
+            nodes[q].left_son = new_node;
+            nodes[new_node].parent = q;
+            a  = new_node;
+
+            nodes[a].right_sibling = b;
+        }
+
+        nodes[p].left_son = q;
+
+        nodes[p].right_sibling = nodes[q].right_sibling;
+        nodes[q].right_sibling = c;
 
         nodes[p].parent = nodes[q].parent;
         nodes[q].parent = p;
 
-        //fixsize(p);
+        if(nodes[q].parent != -1) {
+            if(nodes[nodes[p].parent].left_son == q) {
+                nodes[nodes[p].parent].left_son = p;
+            }else {
+               nodes[ nodes[nodes[p].parent].left_son].right_sibling = p;
+            }
+
+        }
+        fixsize(p);
         fixsize(q);
         return p;
     }
@@ -148,9 +184,17 @@ private:
         }
 
         if (nodes[p].key > key) {
-            int new_node = insertroot(nodes[p].left_son, key, name, mark);
-            nodes[p].left_son = new_node;
-            nodes[new_node].parent = p;
+            if (nodes[p].mark == 2) {
+                cout<< "12345";
+                nodes[p] = Node(key, name, mark);
+
+                nodes[p].key = key;
+                nodes[p].mark = 0;
+            }else {
+                int new_node = insertroot(nodes[p].left_son, key, name, mark);
+                nodes[p].left_son = new_node;
+                nodes[new_node].parent = p;
+            }
             return rotateRight(p);
         } else {
             //cout<<"else root "<<ROOT()<<" :";
@@ -183,12 +227,18 @@ private:
         }
 
         if (nodes[p].key > key) { // вставка в левое поддерево
-            /*if (nodes[p].mark == 2) {
+            if (nodes[p].mark == 2) {
+                cout<< "12345";
                 nodes[p] = Node(key, name, mark);
-            }*/
-            int new_node = insert(nodes[p].left_son, key, name, mark);
-            nodes[p].left_son = new_node;
-            nodes[new_node].parent = p;
+
+                nodes[p].key = key;
+                nodes[p].mark = 0;
+            }
+            else {
+                int new_node = insert(nodes[p].left_son, key, name, mark);
+                nodes[p].left_son = new_node;
+                nodes[new_node].parent = p;
+            }
         } else {  // вставка в правое поддерево
             if (nodes[p].left_son == -1) {
                 int new_node = insert(nodes[p].left_son, -1, '*', 2);
@@ -215,7 +265,8 @@ private:
     void Print(int nodeIndex, int level = 0, bool isRight = false) {
         if (nodeIndex != -1) {
             // Сначала выводим правого брата
-            Print(getRightSon(nodeIndex), level + 1, true);
+            if (nodes[nodeIndex].left_son != -1)
+                Print(nodes[nodes[nodeIndex].left_son].right_sibling, level + 1, true);
 
             // Отступы для уровня
             for (int i = 1; i <= level; i++) {
@@ -350,7 +401,7 @@ private:
 
 
 int main() {
-    srand(25);
+    srand(time(0));
     Tree t;
     int root = -1;
 
@@ -358,15 +409,15 @@ int main() {
     vector<int> valuesB;
 
     //valuesA.push_back(16);
-    /*for (int i = 5; i < 15; ++i) {
+    for (int i = 5; i < 30; ++i) {
+        valuesA.push_back(rand() % 100);
+        valuesB.push_back(i);
+    }
+
+    /*for (int i = 15; i > 5; --i) {
         valuesA.push_back(i);
         valuesB.push_back(i);
     }*/
-
-    for (int i = 8; i > 5; --i) {
-        valuesA.push_back(i);
-        valuesB.push_back(i);
-    }
 
     for (int val : valuesA) {
         cout<< val<<" ";

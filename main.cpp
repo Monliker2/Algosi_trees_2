@@ -91,7 +91,7 @@ private:
         if (a != -1)
             nodes[a].right_sibling = p; // Правый сын q
         else {
-            int new_node = insert(nodes[q].left_son, -1, '*', 2);
+            int new_node = insert(nodes[q].left_son, -1, '*'+nodes.size()+nodes.size(), 2);
             nodes[q].left_son = new_node;
             nodes[new_node].parent = q;
             a = new_node;
@@ -136,6 +136,14 @@ private:
         if (nodes[p].left_son != -1) b = nodes[p].left_son;
         if (nodes[nodes[p].left_son].right_sibling != -1 && nodes[p].left_son != -1) c = nodes[nodes[p].left_son].right_sibling;
 
+        if(nodes[a].mark == 2) {
+            nodes[nodes[a].parent].left_son = -1;
+            nodes[a].parent = -1;
+            nodes[a].right_sibling = -1;
+            nodes[a].mark = 1;
+            a = -1;
+        }
+
         if (a != -1) {
             nodes[a].right_sibling = b;
         }
@@ -148,7 +156,7 @@ private:
         if (a != -1)
             nodes[a].right_sibling = b;
         else if (b != -1) {
-            int new_node = insert(nodes[q].left_son, -1, '*', 2);
+            int new_node = insert(nodes[q].left_son, -1, '*'+nodes.size()+nodes.size(), 2);
             nodes[q].left_son = new_node;
             nodes[new_node].parent = q;
             a  = new_node;
@@ -202,7 +210,7 @@ private:
         } else {
             //cout<<"else root "<<ROOT()<<" :";
             if (nodes[p].left_son == -1) {
-                int new_node = insert(nodes[p].left_son, -1, '*', 2);
+                int new_node = insert(nodes[p].left_son, -1, '*'+nodes.size(), 2);
                 nodes[p].left_son = new_node;
                 nodes[new_node].parent = p;
             }
@@ -244,7 +252,7 @@ private:
             }
         } else {  // вставка в правое поддерево
             if (nodes[p].left_son == -1) {
-                int new_node = insert(nodes[p].left_son, -1, '*', 2);
+                int new_node = insert(nodes[p].left_son, -1, '*'+nodes.size(), 2);
                 nodes[p].left_son = new_node;
                 nodes[new_node].parent = p;
             }
@@ -252,6 +260,7 @@ private:
             nodes[nodes[p].left_son].right_sibling = new_node;
             nodes[new_node].parent = p;
         }
+
         fixsize(p);
         return p;
     }
@@ -308,6 +317,21 @@ private:
         }
     }
 
+    void printTable() {
+        for(int i = 0; i < nodes.size(); i++) {
+            const Node& node = nodes[i];
+            cout << "Index: " << i
+                 << ", Key: " << node.key
+                 << ", Name: " << node.name
+                 << ", Left Son: " << node.left_son
+                 << ", Right Sibling: " << node.right_sibling
+                 << ", Parent: " << node.parent
+                 << ", Mark: " << node.mark
+                 << ", Size: " << node.size
+                 << endl;
+        }
+    }
+
 
     class iterator {
     private:
@@ -319,6 +343,11 @@ private:
         void pushLeft(int index) {
             while (index != -1) {
 
+                if (nodes[index].mark == 1) {
+                    index = nodes[index].left_son;
+                    continue;
+                }
+
                 traversalStack.push(index);
                 index = nodes[index].left_son;
                 //cout<<traversalStack.top()<<" ";
@@ -326,15 +355,6 @@ private:
             }
             //cout<< endl;
             //cout<<traversalStack.top()<<endl;
-        }
-
-        int ROOT1() const {
-            for (int i = 0; i < nodes.size(); ++i) {
-                if (nodes[i].parent == -1) {
-                    return i;
-                }
-            }
-            return -1;
         }
 
     public:
@@ -364,6 +384,7 @@ private:
             return current != other.current;
         }
 
+        
         // Инкремент: перемещаемся к следующему узлу в симметричном порядке
         iterator& operator++() {
             if (!traversalStack.empty()) {
@@ -371,8 +392,7 @@ private:
                 traversalStack.pop();
 
                 // Переход к правому сыну
-                //getRightSon(int p)
-                //return nodes[nodes[p].left_son].right_sibling;
+
                 if (nodes[current].left_son != -1) {
                     if (nodes[nodes[current].left_son].right_sibling != -1) {
                         pushLeft(nodes[nodes[current].left_son].right_sibling);
@@ -389,8 +409,6 @@ private:
         }
 
 
-
-
     };
     iterator begin() const {
         return iterator(nodes, ROOT());
@@ -404,7 +422,7 @@ private:
 
 
 int main() {
-    srand(25);
+    srand(20);
     Tree t;
     int root = -1;
 
@@ -412,9 +430,9 @@ int main() {
     vector<int> valuesB;
 
     //valuesA.push_back(16);
-    for (int i = 0 ; i < 40; ++i) {
-        //valuesA.push_back(i);
-        valuesA.push_back(rand() % 10000);
+    for (int i = 0 ; i < 20; ++i) {
+        valuesA.push_back(i);
+        //valuesA.push_back(rand() % 10000);
     }
 
     /*for (int i = 15; i > 5; --i) {
@@ -434,8 +452,9 @@ int main() {
 
     t.Print(root);
     int p = 0;
-    t.printNode(root);
+    t.printTable();
     cout<< t.begin()->name<<endl<<endl;
+    Tree::iterator it1 = t.begin();
     for (Tree::iterator it = t.begin(); it != t.end(); ++it) {
             if (it->mark == 2) continue;
             std::cout << *it << " (" << it->name << ")\n";

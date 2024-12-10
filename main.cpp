@@ -208,7 +208,6 @@ private:
             }
             return rotateRight(p);
         } else {
-            //cout<<"else root "<<ROOT()<<" :";
             if (nodes[p].left_son == -1) {
                 int new_node = insert(nodes[p].left_son, -1, '*'+nodes.size(), 2);
                 nodes[p].left_son = new_node;
@@ -332,6 +331,13 @@ private:
         }
     }
 
+    void INORDER_Print(int p) {
+        if (p == -1 || nodes[p].mark != 0) return;
+        INORDER_Print(nodes[p].left_son);
+        cout << nodes[p].key << " ";
+        if(nodes[p].left_son != -1)
+            INORDER_Print(nodes[nodes[p].left_son].right_sibling);
+    }
 
     class iterator {
     private:
@@ -384,6 +390,7 @@ private:
             return current != other.current;
         }
 
+
         
         // Инкремент: перемещаемся к следующему узлу в симметричном порядке
         iterator& operator++() {
@@ -430,7 +437,7 @@ int main() {
     vector<int> valuesB;
 
     //valuesA.push_back(16);
-    for (int i = 0 ; i < 20; ++i) {
+    for (int i = 8 ; i > 0; --i) {
         valuesA.push_back(i);
         //valuesA.push_back(rand() % 10000);
     }
@@ -452,14 +459,16 @@ int main() {
 
     t.Print(root);
     int p = 0;
-    t.printTable();
+    t.printNode(root);
     cout<< t.begin()->name<<endl<<endl;
-    Tree::iterator it1 = t.begin();
-    for (Tree::iterator it = t.begin(); it != t.end(); ++it) {
+
+    t.INORDER_Print(root);
+    cout<<endl;
+    /*for (Tree::iterator it = t.begin(); it != t.end(); ++it) {
             if (it->mark == 2) continue;
             std::cout << *it << " (" << it->name << ")\n";
             p++;
-    }
+    }*/
     cout<<p<<" "<<valuesA.size()<<endl;
     return 0;
 }

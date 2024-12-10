@@ -38,7 +38,7 @@ private:
 
     vector<Node> nodes;
     int getsize(int p) {
-        if (p < 0 || p >= nodes.size()) return 0;
+        if (nodes[p].mark==2 || p == -1) return 0;
         return nodes[p].size;
     }
 
@@ -52,85 +52,140 @@ private:
     }
 
     void fixsize(int p) {
-        int size = 1;
-        int leftSon = nodes[p].left_son;
-
-        if (leftSon != -1) {
-            size += getsize(leftSon);
-
-            int rightSibling = nodes[leftSon].right_sibling;
-            while (rightSibling != -1) {
-                size += getsize(rightSibling);
-                rightSibling = nodes[rightSibling].right_sibling;
-            }
+        if (nodes[nodes[p].left_son].right_sibling == -1) {
+            nodes[p].size = getsize(nodes[p].left_son) + 1;
         }
-        nodes[p].size = size;
+        else {
+            nodes[p].size = getsize(nodes[p].left_son) + getsize(nodes[nodes[p].left_son].right_sibling) + 1;
+        }
     }
 
+    Node* RightSon(Node* p) {
+        if (p == nullptr) return nullptr;
+        if (p->left_son == -1) return nullptr;
+        if (nodes[p->left_son].right_sibling == -1) return nullptr;
+        return &nodes[nodes[p->left_son].right_sibling];
+    }
 
-    Node* rotateRight(Node* p) {
-        if (p->left_son == -1) return p;
-        Node* q = &nodes[p->left_son];
+    int rotateRight(int p) {
+        cout << " RR ";
 
-        if(!q) return p;
-        p->left_son = nodes[q->left_son].right_sibling;
-        nodes[q->left_son].right_sibling = getIndex(p);
+        if (nodes[p].left_son == -1) return p;
+        int q = nodes[p].left_son;
+        int a = -1;
+        int b = -1;
 
-        q->size = p->size;
-        fixsize(getIndex(p));
+        if (q != -1) {
+            a = nodes[q].left_son;
+            if (a != -1)
+                b = nodes[a].right_sibling;
+        }
+        int c = nodes[q].right_sibling;
+
+        if (a != -1)
+            nodes[a].right_sibling = p; // Правый сын q
+        else {
+
+            int new_node = insert(nodes[q].left_son, -1, '*', 2);
+            nodes[q].left_son = new_node;
+            nodes[new_node].parent = q;
+            a  = new_node;
+
+            nodes[a].right_sibling = p;
+        }
+
+        if (b != -1) {
+            nodes[b].right_sibling = c;
+            nodes[b].parent = p;
+        }
+
+        nodes[p].left_son = b;
+
+        nodes[q].parent = nodes[p].parent;
+        nodes[p].parent = q;
+
+        if (nodes[nodes[q].parent].left_son == p) {
+            nodes[nodes[q].parent].left_son = q;
+        }
+        else {
+            nodes[nodes[q].parent].left_son = p;
+        }
+
+        fixsize(p);
+        fixsize(q);
         return q;
     }
 
-    Node* rotateLeft(Node* q) {
-        if (nodes[q->left_son].right_sibling == -1) return q;
-        Node* p = &nodes[nodes[q->left_son].right_sibling];
 
-        if(!p) return q;
-        nodes[q->left_son].right_sibling = p->left_son;
-        p->left_son = getIndex(q);
 
-        p->size = q->size;
-        fixsize(getIndex(p));
-        return q;
+    int rotateLeft(int q) {
+        cout<<" LL ";
 
+        if (nodes[q].left_son == -1) return q;
+        int p = nodes[nodes[q].left_son].right_sibling;
+
+        if (p == -1) return q;
+
+        nodes[nodes[q].left_son].right_sibling = nodes[p].left_son;
+        nodes[p].left_son = nodes[q].left_son;
+        nodes[q].left_son = nodes[p].right_sibling;
+        nodes[p].right_sibling = q;
+
+        nodes[p].parent = nodes[q].parent;
+        nodes[q].parent = p;
+
+        //fixsize(p);
+        fixsize(q);
+        return p;
     }
 
-    int insertroot(Node* p, int key, char name, int mark = 0) {
-        if (!p) {
+    int insertroot(int p, int key, char name, int mark) {
+        if (p == -1) {
             nodes.push_back(Node(key, name, mark));
+            //fixsize(nodes.size()-1);
+            //cout<<" insertroot but not rotate ";
             return nodes.size() - 1;
         }
-        if(key < p->key) {
-            p->left_son = insertroot(&nodes[p->left_son], key, name, mark);
-            return getIndex(rotateRight(p));
-        } else {
-            if (p->left_son == -1) {
-                int new_node = insert(-1, -1, '*', 2);
-                p->left_son = new_node;
-                nodes[new_node].parent = getIndex(p);
-            }
-            nodes[p->left_son].right_sibling = insertroot(&nodes[nodes[p->left_son].right_sibling], key, name, mark);
-            return getIndex(rotateLeft(p));
-        }
 
+        if (nodes[p].key > key) {
+            int new_node = insertroot(nodes[p].left_son, key, name, mark);
+            nodes[p].left_son = new_node;
+            nodes[new_node].parent = p;
+            return rotateRight(p);
+        } else {
+            //cout<<"else root "<<ROOT()<<" :";
+            if (nodes[p].left_son == -1) {
+                int new_node = insert(nodes[p].left_son, -1, '*', 2);
+                nodes[p].left_son = new_node;
+                nodes[new_node].parent = p;
+            }
+            int new_node = insertroot(nodes[nodes[p].left_son].right_sibling, key, name, mark);
+            nodes[nodes[p].left_son].right_sibling = new_node;
+            nodes[new_node].parent = p;
+            return rotateLeft(p);
+        }
     }
 
     public:
     int insert(int p, int key, char name, int mark = 0) {
         if (p == -1) {
             nodes.push_back(Node(key, name, mark));
+            //fixsize(nodes.size()-1);
+
             return nodes.size() - 1;
         }
 
         // Randomized insertion
-        if (rand() % (getsize(p) + 1) == 0) {
-            return insertroot(&nodes[p], key, name, mark);
+        int s = getsize(p);
+        if (rand() % (s + 1) == 0) {
+            //cout<<"insertroot!!";
+            return insertroot(p, key, name, mark);
         }
 
         if (nodes[p].key > key) { // вставка в левое поддерево
-            if (nodes[p].mark == 2) {
+            /*if (nodes[p].mark == 2) {
                 nodes[p] = Node(key, name, mark);
-            }
+            }*/
             int new_node = insert(nodes[p].left_son, key, name, mark);
             nodes[p].left_son = new_node;
             nodes[new_node].parent = p;
@@ -144,7 +199,6 @@ private:
             nodes[nodes[p].left_son].right_sibling = new_node;
             nodes[new_node].parent = p;
         }
-
         fixsize(p);
         return p;
     }
@@ -296,16 +350,20 @@ private:
 
 
 int main() {
-    srand(25 );
+    srand(25);
     Tree t;
     int root = -1;
 
-    int numNodes = 15;
     vector<int> valuesA;
     vector<int> valuesB;
 
-    valuesA.push_back(16);
-    for (int i = 5; i < numNodes; ++i) {
+    //valuesA.push_back(16);
+    /*for (int i = 5; i < 15; ++i) {
+        valuesA.push_back(i);
+        valuesB.push_back(i);
+    }*/
+
+    for (int i = 8; i > 5; --i) {
         valuesA.push_back(i);
         valuesB.push_back(i);
     }

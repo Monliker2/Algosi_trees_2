@@ -74,30 +74,32 @@ private:
         int q = nodes[p].left_son;
         int a = -1;
         int b = -1;
+        int c = -1;
 
-        if (q != -1) {
-            a = nodes[q].left_son;
-            if (a != -1)
-                b = nodes[a].right_sibling;
-        }
-        int c = nodes[q].right_sibling;
+        if (nodes[q].left_son != -1) a = nodes[q].left_son;
+        if (nodes[a].right_sibling != -1 && a != -1) b = nodes[a].right_sibling;
+        if (nodes[q].right_sibling != -1) c = nodes[q].right_sibling;
 
-        if (a != -1)
-            nodes[a].right_sibling = p; // Правый сын q
-        else {
 
-            int new_node = insert(nodes[q].left_son, -1, '*', 2);
-            nodes[q].left_son = new_node;
-            nodes[new_node].parent = q;
-            a  = new_node;
-
-            nodes[a].right_sibling = p;
-        }
+        //if (nodes[nodes[p].left_son].right_sibling != -1 && nodes[p].left_son != -1) c = nodes[nodes[p].left_son].right_sibling;
 
         if (b != -1) {
             nodes[b].right_sibling = c;
             nodes[b].parent = p;
         }
+
+        if (a != -1)
+            nodes[a].right_sibling = p; // Правый сын q
+        else {
+            int new_node = insert(nodes[q].left_son, -1, '*', 2);
+            nodes[q].left_son = new_node;
+            nodes[new_node].parent = q;
+            a = new_node;
+
+            nodes[a].right_sibling = p;
+        }
+
+
 
         nodes[p].left_son = b;
 
@@ -402,7 +404,7 @@ private:
 
 
 int main() {
-    srand(time(0));
+    srand(25);
     Tree t;
     int root = -1;
 

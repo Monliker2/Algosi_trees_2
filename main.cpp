@@ -231,12 +231,17 @@ private:
 
     public:
     int insert(int p, int key, char name, int mark = 0) {
+
+
+
         if (p == -1) {
             nodes.push_back(Node(key, name, mark));
             //fixsize(nodes.size()-1);
 
             return nodes.size() - 1;
         }
+
+        if (nodes[p].key == key) return p;
 
         // Randomized insertion
         int s = getsize(p);
@@ -257,7 +262,8 @@ private:
             nodes[p].left_son = new_node;
             nodes[new_node].parent = p;
 
-        } else {  // вставка в правое поддерево
+        }
+        else{  // вставка в правое поддерево
 
             if (nodes[p].left_son == -1) {
                 int new_node = insert(nodes[p].left_son, -1, '*', 2);
@@ -361,8 +367,8 @@ private:
         void pushLeft(int index) {
             while (index != -1) {
 
-                if (nodes[index].mark == 1) {
-                    index = nodes[index].left_son;
+                if (nodes[index].mark == 2) {
+                    index = -1;
                     continue;
                 }
 
@@ -442,52 +448,56 @@ int main() {
     srand(time(0));
     //27
 
-    Tree t;
-    int root = -1;
+    Tree tA;
+    int rootA = -1;
+
+    Tree tB;
+    int rootB = -1;
 
     vector<int> valuesA;
     vector<int> valuesB;
     vector<int> temp;
 
-    for (int i = 0; i < 5; ++i) {
-        //valuesA.push_back(i);
+    for (int i = 0; i < 20; ++i) {
         valuesA.push_back(rand() % 100);
+        valuesB.push_back(rand() % 100);
     }
 
-    cout<<"Входные данные"<<endl;
+    cout<<"Дерево A"<<endl;
     for(int val : valuesA) {
         cout<< val<<" ";
+        rootA = tA.insert(rootA, val, 'A');
     }
     cout<<endl;
 
-    for (int val : valuesA) {
-        root = t.insert(root, val, 'A');
+
+    cout<<"Дерево B"<<endl;
+    for(int val : valuesB) {
+        cout<< val<<" ";
+        rootB = tB.insert(rootB, val, 'B');
     }
     cout<<endl;
 
-    t.Print(root);
-    int p = 0;
-    //t.printNode(root);
-    cout<< t.begin()->name<<endl<<endl;
+    cout<<"Дерево A"<<endl;
+    tA.Print(rootA);
+
+    cout<<endl<<"Дерево B"<<endl;
+    tB.Print(rootB);
+
 
     //t.INORDER_Print(root);
     cout<<endl;
-    for (Tree::iterator it = t.begin(); it != t.end(); ++it) {
-
-        cout<< *it<<" ";
-            /*if (it->mark == 2) continue;
-            temp.push_back(*it);
-            p++;*/
+    for (Tree::iterator it = tB.begin(); it != tB.end(); ++it) {
+        rootA = tA.insert(rootA, *it, 'B');
     }
-    cout<<endl;
-    /*for (Tree::iterator it = t.end(); it != t.begin(); --it) {
-        cout<< *it<<" ";
-    }*/
+    cout<<endl<<endl;
 
-    t.INORDER(root, valuesB);
+    tA.INORDER(tA.ROOT(), temp);
 
-    cout<<valuesB.size()<<" "<<p<<" "<<valuesA.size()<<":"<<(valuesB == temp)<<endl;
+    cout<<endl<<"Новое дерево A"<<endl;
+    tA.Print(rootA);
 
+    cout<< temp.size();
     //t.printTable();
     return 0;
 }

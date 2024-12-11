@@ -68,7 +68,7 @@ private:
     }
 
     int rotateRight(int p) {
-        cout << " RR ";
+        //cout << " RR ";
 
         if (nodes[p].left_son == -1) return p;
         int q = nodes[p].left_son;
@@ -87,7 +87,7 @@ private:
         if (a != -1)
             nodes[a].right_sibling = p; // Правый сын q
         else {
-            int new_node = insert(nodes[q].left_son, -1, '*'+nodes.size()+nodes.size(), 2);
+            int new_node = insert(nodes[q].left_son, -1, '*', 2);
             nodes[q].left_son = new_node;
             nodes[new_node].parent = q;
             a = new_node;
@@ -98,7 +98,7 @@ private:
 
         if(c != -1 && b == -1) {
             nodes[p].left_son = -1;
-            int new_node = insert(nodes[p].left_son, -1, '*'+nodes.size()+nodes.size(), 2);
+            int new_node = insert(nodes[p].left_son, -1, '*', 2);
             //nodes[p].left_son = new_node;
             b = new_node;
             //nodes[b].parent = p;
@@ -130,7 +130,7 @@ private:
 
 
     int rotateLeft(int q) {
-        cout<<" LL ";
+        //cout<<" LL ";
         if (nodes[q].left_son == -1 || nodes[nodes[q].left_son].right_sibling == -1) return q;
 
         int p = nodes[nodes[q].left_son].right_sibling;
@@ -165,7 +165,7 @@ private:
         if (a != -1)
             nodes[a].right_sibling = b;
         else if (b != -1) {
-            int new_node = insert(nodes[q].left_son, -1, '*'+nodes.size()+nodes.size(), 2);
+            int new_node = insert(nodes[q].left_son, -1, '*', 2);
             nodes[q].left_son = new_node;
             nodes[new_node].parent = q;
             a  = new_node;
@@ -204,7 +204,6 @@ private:
         }
 
         if (nodes[p].mark == 2) {
-            cout<<"!!";
             nodes[p].name = name;
             nodes[p].mark = 0;
             nodes[p].key = key;
@@ -218,9 +217,8 @@ private:
             return rotateRight(p);
         }
         else { // вставка в правое поддерево
-            cout<<"|*"<<nodes[p].key<<":"<<key<<":"<<p<<"*|";
             if (nodes[p].left_son == -1) {
-                int new_node = insert(nodes[p].left_son, -1, '*'+nodes.size(), 2);
+                int new_node = insert(nodes[p].left_son, -1, '*', 2);
                 nodes[p].left_son = new_node;
                 nodes[new_node].parent = p;
             }
@@ -248,7 +246,6 @@ private:
         }
 
         if (nodes[p].mark == 2) {
-            cout<<"!!";
             nodes[p].name = name;
             nodes[p].mark = 0;
             nodes[p].key = key;
@@ -263,7 +260,7 @@ private:
         } else {  // вставка в правое поддерево
 
             if (nodes[p].left_son == -1) {
-                int new_node = insert(nodes[p].left_son, -1, '*'+nodes.size(), 2);
+                int new_node = insert(nodes[p].left_son, -1, '*', 2);
                 nodes[p].left_son = new_node;
                 nodes[new_node].parent = p;
             }
@@ -291,20 +288,23 @@ private:
             if (nodes[nodeIndex].left_son != -1)
                 Print(nodes[nodes[nodeIndex].left_son].right_sibling, level + 1, true);
 
-            // Отступы для уровня
-            for (int i = 1; i <= level; i++) {
-                cout << ".  ";
-            }
 
-            // Выводим текущий узел
-            if (isRight) {
-                cout << "┌─ "; // Для правых ветвей
-            } else {
-                cout << "└─ "; // Для остальных узлов
-            }
+            if(nodes[nodeIndex].mark == 0) {
+                // Отступы для уровня
+                for (int i = 1; i <= level; i++) {
+                    cout << ".  ";
+                }
 
-            cout << nodes[nodeIndex].key << "(" << nodes[nodeIndex].name << ")";
-            cout << endl;
+                // Выводим текущий узел
+                if (isRight) {
+                    cout << "┌─ "; // Для правых ветвей
+                } else {
+                    cout << "└─ "; // Для остальных узлов
+                }
+
+                cout << nodes[nodeIndex].key << "(" << nodes[nodeIndex].name << ")";
+                cout << endl;
+            }
 
             // Выводим левого сына
             Print(nodes[nodeIndex].left_son, level + 1, false);
@@ -349,14 +349,6 @@ private:
         result.push_back(nodes[p].key);
         if (nodes[p].left_son != -1)
             INORDER(nodes[nodes[p].left_son].right_sibling, result);
-    }
-
-    void INORDER_Print(int p) {
-        if (p == -1 || nodes[p].mark != 0) return;
-        INORDER_Print(nodes[p].left_son);
-        cout << nodes[p].key << " ";
-        if(nodes[p].left_son != -1)
-            INORDER_Print(nodes[nodes[p].left_son].right_sibling);
     }
 
     class iterator {
@@ -434,8 +426,6 @@ private:
             }
             return *this;
         }
-
-
     };
     iterator begin() const {
         return iterator(nodes, ROOT());
@@ -457,24 +447,20 @@ int main() {
 
     vector<int> valuesA;
     vector<int> valuesB;
+    vector<int> temp;
 
-    //valuesA.push_back(16);
-    for (int i = 0; i < 45; ++i) {
+    for (int i = 0; i < 5; ++i) {
         //valuesA.push_back(i);
         valuesA.push_back(rand() % 100);
     }
 
-    /*for (int i = 15; i > 5; --i) {
-        valuesA.push_back(i);
-        valuesB.push_back(i);
-    }*/
+    cout<<"Входные данные"<<endl;
     for(int val : valuesA) {
         cout<< val<<" ";
     }
     cout<<endl;
 
     for (int val : valuesA) {
-        cout<< val<<" ";
         root = t.insert(root, val, 'A');
     }
     cout<<endl;
@@ -486,14 +472,22 @@ int main() {
 
     //t.INORDER_Print(root);
     cout<<endl;
-    /*for (Tree::iterator it = t.begin(); it != t.end(); ++it) {
-            if (it->mark == 2) continue;
-            std::cout << *it << " (" << it->name << ")\n";
-            p++;
+    for (Tree::iterator it = t.begin(); it != t.end(); ++it) {
+
+        cout<< *it<<" ";
+            /*if (it->mark == 2) continue;
+            temp.push_back(*it);
+            p++;*/
+    }
+    cout<<endl;
+    /*for (Tree::iterator it = t.end(); it != t.begin(); --it) {
+        cout<< *it<<" ";
     }*/
+
     t.INORDER(root, valuesB);
 
-    cout<<valuesB.size()<<" "<<valuesA.size()<<endl;
+    cout<<valuesB.size()<<" "<<p<<" "<<valuesA.size()<<":"<<(valuesB == temp)<<endl;
+
     //t.printTable();
     return 0;
 }

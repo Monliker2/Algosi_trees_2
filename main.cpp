@@ -102,10 +102,9 @@ private:
             //nodes[p].left_son = new_node;
             b = new_node;
             //nodes[b].parent = p;
-
-            nodes[b].right_sibling = c;
-            nodes[b].parent = p;
         }
+        nodes[b].right_sibling = c;
+        nodes[b].parent = p;
 
         nodes[p].left_son = b;
 
@@ -143,13 +142,16 @@ private:
         if (nodes[p].left_son != -1) b = nodes[p].left_son;
         if (nodes[nodes[p].left_son].right_sibling != -1 && nodes[p].left_son != -1) c = nodes[nodes[p].left_son].right_sibling;
 
-        if(nodes[a].mark == 2) {
+        // Закоментить следующее
+        // -----------------------------------
+        /*if(nodes[a].mark == 2) {
             nodes[nodes[a].parent].left_son = -1;
             nodes[a].parent = -1;
             nodes[a].right_sibling = -1;
             nodes[a].mark = 1;
             a = -1;
-        }
+        }*/
+        // -----------------------------------
 
         if (a != -1) {
             nodes[a].right_sibling = b;
@@ -447,7 +449,9 @@ private:
 
 
 int main() {
-    srand(27);;
+    srand(time(0));
+    //27
+
     Tree t;
     int root = -1;
 
@@ -455,8 +459,8 @@ int main() {
     vector<int> valuesB;
 
     //valuesA.push_back(16);
-    for (int i = 7; i > 0; --i) {
-        //  valuesA.push_back(i);
+    for (int i = 0; i < 45; ++i) {
+        //valuesA.push_back(i);
         valuesA.push_back(rand() % 100);
     }
 
@@ -477,10 +481,10 @@ int main() {
 
     t.Print(root);
     int p = 0;
-    t.printNode(root);
+    //t.printNode(root);
     cout<< t.begin()->name<<endl<<endl;
 
-    t.INORDER_Print(root);
+    //t.INORDER_Print(root);
     cout<<endl;
     /*for (Tree::iterator it = t.begin(); it != t.end(); ++it) {
             if (it->mark == 2) continue;

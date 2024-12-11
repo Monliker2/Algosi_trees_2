@@ -203,6 +203,9 @@ private:
             return nodes.size() - 1;
         }
 
+        if (nodes[p].key == key)
+            return p;
+
         if (nodes[p].mark == 2) {
             nodes[p].name = name;
             nodes[p].mark = 0;
@@ -241,7 +244,8 @@ private:
             return nodes.size() - 1;
         }
 
-        if (nodes[p].key == key) return p;
+        if (nodes[p].key == key)
+            return p;
 
         // Randomized insertion
         int s = getsize(p);
@@ -445,7 +449,8 @@ private:
 
 
 int main() {
-    srand(time(0));
+    //srand(time(0));
+    srand(27);
     //27
 
     Tree tA;
@@ -458,7 +463,7 @@ int main() {
     vector<int> valuesB;
     vector<int> temp;
 
-    for (int i = 0; i < 20; ++i) {
+    for (int i = 0; i < 15; ++i) {
         valuesA.push_back(rand() % 100);
         valuesB.push_back(rand() % 100);
     }
@@ -498,6 +503,6 @@ int main() {
     tA.Print(rootA);
 
     cout<< temp.size();
-    //t.printTable();
+    //tA.printTable();
     return 0;
 }
